@@ -115,3 +115,25 @@ describe('GET /todos/:id', () => {
 	});
 
 });
+
+describe('DELETE /todos/:id', (done) => {
+
+	it('should return 404 if todo not found', (done) => {
+		var id = new ObjectID().toHexString();
+
+		request(app)
+			.delete(`/todos/:${id}`)
+			.expect(404)
+			.end(done);
+	});
+
+	it('should return 404 if todo none-object id', (done) => {
+		var id = '123';
+
+		request(app)
+			.delete(`/todos/:${id}`)
+			.expect(404)
+			.end(done);
+	});
+
+});
