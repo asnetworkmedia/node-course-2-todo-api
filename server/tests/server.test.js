@@ -7,10 +7,12 @@ const {Todo} = require('./../models/todo');
 
 const todos = [{
 	_id : new ObjectID(),
-	text: 'First test todo'
+	text: 'First test todo'	
 }, {
 	_id : new ObjectID(),
-	text: 'Second test todo'
+	text: 'Second test todo',
+	completed: true,
+	completedAt: 123
 }]
 
 beforeEach((done) => {
@@ -121,7 +123,7 @@ describe('DELETE /todos/:id', (done) => {
 		var hexId = todos[0]._id.toHexString();
 
 		request(app)
-			.delete(`/todos/:${hexId}`)
+			.delete(`/todos/${hexId}`)
 			.expect(200)			
 			.expect((res) => {
 				expect(res.body.todo._id).toBe(hexId);
@@ -151,9 +153,73 @@ describe('DELETE /todos/:id', (done) => {
 		var id = '123';
 
 		request(app)
-			.delete(`/todos/:${id}`)
+			.delete(`/todos/${id}`)
 			.expect(404)
 			.end(done);
 	});
+
+});
+
+
+describe('PATCH /totos/:id', (done) => {
+
+	it('should update the todo', (done) => {
+		var hexId = todos[0]._id.toHexString();
+		var body = { text: "this is the test case", completed : true };
+
+		request(app)
+			.patch(`/todos/${hexId}`)
+			.send(body)
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo._id).toBe(hexId);
+				expect(res.body.todo.completed).toBe(body.completed);
+				expect(res.body.todo.completedAt).toBeA('number');
+				expect(res.body.todo.text).toBeA('string').toNotBe(todos[0].text);				
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Todo.findById(hexId).then((todo) => {
+					expect(todo).toExist();
+					done();
+
+				}).catch((e) => done(e));
+			});
+
+
+	});
+
+
+	it('should clear completedAt when todo is nto completed', (done) => {
+		var hexId = todos[1]._id.toHexString();
+		var body = { text: "this is the test case", completed : false };
+
+		request(app)
+			.patch(`/todos/${hexId}`, { body })
+			.expect(200)
+			.send(body)
+			.expect((res) => {
+				expect(res.body.todo._id).toBe(hexId);
+				expect(res.body.todo.completed).toBe(body.completed);
+				expect(res.body.todo.completedAt).toNotExist();
+				expect(res.body.todo.text).toBeA('string').toNotBe(todos[1].text);				
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Todo.findById(hexId).then((todo) => {
+					expect(todo).toExist();
+					done();
+
+				}).catch((e) => done(e));
+			});
+
+	});
+
 
 });
