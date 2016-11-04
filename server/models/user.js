@@ -57,6 +57,16 @@ UserSchema.methods.toJSON = function() {
 	return _.pick(userObject, ['_id', 'email']);
 };
 
+UserSchema.methods.removerToken = function(token) {
+	var user = this;
+
+	return user.update({
+		$pull: {
+			tokens: { token }
+		}
+	});
+}
+
 UserSchema.methods.generateAuthToken = function() {
 	var user = this;
 	var access = 'auth';
