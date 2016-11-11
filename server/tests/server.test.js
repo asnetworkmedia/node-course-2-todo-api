@@ -10,7 +10,7 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
-describe('POST /todos', () => {
+describe('POST /todos', (done) => {
 
 	it('should create a new todo', (done) => {
 		var text = 'Test todo text';
@@ -57,7 +57,6 @@ describe('POST /todos', () => {
 	});
 
 });
-
 
 describe('GET /todos', () => {
 	it('should get all todos', (done) => {
